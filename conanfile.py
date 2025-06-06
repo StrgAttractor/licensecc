@@ -34,6 +34,7 @@ class cllLicensecc(ConanFile):
 
     def requirements(self):
         self.requires("boost/1.83.0")
+        self.requires("openssl/3.1.2")
 
     def layout(self):
         print("CLL CONAN layout")
@@ -75,6 +76,19 @@ class cllLicensecc(ConanFile):
         print("CLL CONAN pacakge done")
 
     def package_info(self):
-        print("CLL CONAN package info")
-        self.cpp_info.components["licensecc"].libs = ["licensecc"]
-        self.cpp_info.components["licensecc"].set_property("cmake_target_name", "licensecc")
+        self.cpp_info.components["licensecc_static"].libs = ["licensecc_static"]
+        self.cpp_info.components["licensecc_static"].libdirs = ["licensecc/NGSA"]
+        # Include both 'include' and 'include/licensecc/NGSA' for headers
+        self.cpp_info.components["licensecc_static"].includedirs = ["include", "include/licensecc/NGSA"]
+        self.cpp_info.components["licensecc_static"].set_property("cmake_target_name", "licensecc::licensecc_static")
+        self.cpp_info.components["licensecc_static"].set_property("cmake_file_name", "licensecc")
+        self.cpp_info.components["licensecc_static"].set_property(
+            "cmake_build_modules",
+            [
+                "cmake/licensecc/licensecc-config.cmake",
+                "cmake/licensecc/licensecc-config-version.cmake"
+            ]
+        )
+        # self.cpp_info.components["licensecc_static"].requires = ["openssl::openssl"]
+
+        self.cpp_info.libs = []  # Avoid global conflicts
