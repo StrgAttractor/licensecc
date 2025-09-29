@@ -46,8 +46,9 @@ class cllLicensecc(ConanFile):
         
         # Explicitly instantiate and configure CMakeToolchain
         cmake_toolchain = CMakeToolchain(self)
+        cmake_toolchain.variables["PROJECT_NAME"] = "licensecc"
         cmake_toolchain.variables["LCC_PROJECT_NAME"] = "NGSA"
-        cmake_toolchain.variables["LCC_PROJECT_MAGIC_NUM"] = "98634"
+        # cmake_toolchain.variables["LCC_PROJECT_MAGIC_NUM"] = "98634"
         cmake_toolchain.generate()
         
         # Generate dependencies
@@ -63,10 +64,16 @@ class cllLicensecc(ConanFile):
         print("CLL CONAN build")
         cmake = CMake(self)
         # cmake.configure(source_dir=self.source_folder)
-        cmake_hardcoded_values = {"LCC_PROJECT_NAME":"NGSA", "LCC_PROJECT_MAGIC_NUM": 98634}
+        cmake_hardcoded_values = {"LCC_PROJECT_NAME":"NGSA",
+                                #   "LCC_PROJECT_MAGIC_NUM": 98634, # should be LCC_VERYFY_MAGIC in licensecc_properties.h
+                                  "PROJECT_NAME" : "licensecc"
+                                  }
         cmake.configure( cmake_hardcoded_values )
+        
         #cmake.configure()
         cmake.build()
+        # self.run(f"cmake --build . --target project_initialize")
+
         print("CLL CONAN build")
             
     def package(self):

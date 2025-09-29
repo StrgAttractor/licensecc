@@ -115,7 +115,7 @@ typedef struct {
 	 * this number passed in by the application must correspond to the magic number used when compiling the library.
 	 * See cmake parameter -DLCC_PROJECT_MAGIC_NUM and licensecc_properties.h macro VERIFY_MAGIC
 	 */
-	unsigned int magic;
+	unsigned int magic=0;
 } CallerInformations;
 
 typedef struct {

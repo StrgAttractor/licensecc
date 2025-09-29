@@ -18,6 +18,7 @@
 
 #include "../signature_verifier.hpp"
 #include "../../base/logger.h"
+#include <iostream>
 
 namespace license {
 namespace os {
@@ -42,6 +43,7 @@ static void initialize() {
 }
 
 FUNCTION_RETURN verify_signature(const std::string& stringToVerify, const std::string& signatureB64) {
+	std::cout << "Verifying signature for string: " << stringToVerify << std::endl;
 	EVP_MD_CTX* mdctx = NULL;
 	const unsigned char pubKey[] = PUBLIC_KEY;
 	int func_ret = 0;
@@ -52,6 +54,7 @@ FUNCTION_RETURN verify_signature(const std::string& stringToVerify, const std::s
 	BIO_free(bio);
 	if (rsa == NULL) {
 		LOG_ERROR("Error reading public key");
+		std::cout << "Error reading public key: " << ERR_reason_error_string(ERR_get_error()) << std::endl;
 		return FUNC_RET_ERROR;
 	}
 	EVP_PKEY* pkey = EVP_PKEY_new();
@@ -80,11 +83,13 @@ FUNCTION_RETURN verify_signature(const std::string& stringToVerify, const std::s
 	if (!(mdctx = EVP_MD_CTX_create())) {
 		free_resources(pkey, mdctx);
 		LOG_ERROR("Error creating context");
+		std::cout << "Error creating context: " << ERR_reason_error_string(ERR_get_error()) << std::endl;
 		return FUNC_RET_ERROR;
 	}
 	if (1 != EVP_DigestVerifyInit(mdctx, NULL, EVP_sha256(), NULL, pkey)) {
 		LOG_ERROR("Error initializing digest");
 		free_resources(pkey, mdctx);
+		std::cout << "Error initializing digest: " << ERR_reason_error_string(ERR_get_error()) << std::endl;
 		return FUNC_RET_ERROR;
 	}
 
@@ -92,16 +97,19 @@ FUNCTION_RETURN verify_signature(const std::string& stringToVerify, const std::s
 	if (1 != func_ret) {
 		LOG_ERROR("Error verifying digest %d", func_ret);
 		free_resources(pkey, mdctx);
+		std::cout << "Error verifying digest 1: " << ERR_reason_error_string(ERR_get_error()) << std::endl;
 		return FUNC_RET_ERROR;
 	}
 	FUNCTION_RETURN result;
 	func_ret = EVP_DigestVerifyFinal(mdctx, buffer, len);
 	if (1 != func_ret) {
+		std::cout << "Error verifying digest 2: " << ERR_reason_error_string(ERR_get_error()) << std::endl;
 		LOG_ERROR("Error verifying digest %d", func_ret);
 	}
 	result = (1 == func_ret ? FUNC_RET_OK : FUNC_RET_ERROR);
 
 	free_resources(pkey, mdctx);
+	std::cout << "Signature verification result: " << (result == FUNC_RET_OK ? "OK" : "ERROR") << std::endl;
 	return result;
 }
 }  // namespace os

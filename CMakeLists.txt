@@ -8,13 +8,31 @@ SET(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 IF(NOT LCC_PROJECT_NAME)
 	message(STATUS "You should define a variable LCC_PROJECT_NAME containing the name of the software you want to add a license to."
 		"A mock project named DEFAULT has been added for you.")
-	set(LCC_PROJECT_NAME "DEFAULT" CACHE STRING "Project name (name of the software for which you want to issue a license)") 
+	set(LCC_PROJECT_NAME "NGSA" CACHE STRING "Project name (name of the software for which you want to issue a license)") 
 ENDIF(NOT LCC_PROJECT_NAME)
 
 #base folder where projects are stored (/projects)
 IF(NOT LCC_PROJECTS_BASE_DIR)
+	message(STATUS "You should define a variable LCC_PROJECTS_BASE_DIR, using source_dir/projects." )
 	set(LCC_PROJECTS_BASE_DIR "${CMAKE_SOURCE_DIR}/projects") 
 ENDIF(NOT LCC_PROJECTS_BASE_DIR)
+
+IF(NOT PROJECT_NAME)
+	message(STATUS "You should define a variable PROJECT_NAME containing the name of the software you want to add a license to."
+		"A mock project named licensecc has been added for you.")
+	set(PROJECT_NAME "licensecc" CACHE STRING "Project name (name of the software for which you want to issue a license)") 
+ENDIF(NOT PROJECT_NAME)
+
+#initialize project
+#load the current project from files or find it from environment variables or create a default one
+set(LCC_INCLUDE_DIR "${LCC_PROJECTS_BASE_DIR}/${LCC_PROJECT_NAME}/include/${PROJECT_NAME}/${LCC_PROJECT_NAME}" )
+set(LCC_PROJECT_PUBLIC_KEY "${LCC_INCLUDE_DIR}/public_key.h" )
+set(LCC_PROJECT_PRIVATE_KEY "${LCC_PROJECTS_BASE_DIR}/${LCC_PROJECT_NAME}/private_key.rsa" )
+
+message(STATUS "LCC_INCLUDE_DIR: ${LCC_INCLUDE_DIR}")	
+message(STATUS "LCC_PROJECT_PUBLIC_KEY: ${LCC_PROJECT_PUBLIC_KEY}")
+message(STATUS "LCC_PROJECT_PRIVATE_KEY: ${LCC_PROJECT_PRIVATE_KEY}")
+
 
 cmake_policy(SET CMP0048 NEW)
 #cmake_policy(SET CMP0091 NEW)
@@ -107,9 +125,13 @@ endif(UNIX)
 
 #initialize project
 #load the current project from files or find it from environment variables or create a default one
-set(LCC_INCLUDE_DIR "${LCC_PROJECTS_BASE_DIR}/${LCC_PROJECT_NAME}/include/${PROJECT_NAME}/${LCC_PROJECT_NAME}" )
-set(LCC_PROJECT_PUBLIC_KEY "${LCC_INCLUDE_DIR}/public_key.h" )
-set(LCC_PROJECT_PRIVATE_KEY "${LCC_PROJECTS_BASE_DIR}/${LCC_PROJECT_NAME}/private_key.rsa" )
+# set(LCC_INCLUDE_DIR "${LCC_PROJECTS_BASE_DIR}/${LCC_PROJECT_NAME}/include/${PROJECT_NAME}/${LCC_PROJECT_NAME}" )
+# set(LCC_PROJECT_PUBLIC_KEY "${LCC_INCLUDE_DIR}/public_key.h" )
+# set(LCC_PROJECT_PRIVATE_KEY "${LCC_PROJECTS_BASE_DIR}/${LCC_PROJECT_NAME}/private_key.rsa" )
+
+# message(STATUS "LCC_INCLUDE_DIR: ${LCC_INCLUDE_DIR}")	
+# message(STATUS "LCC_PROJECT_PUBLIC_KEY: ${LCC_PROJECT_PUBLIC_KEY}")
+# message(STATUS "LCC_PROJECT_PRIVATE_KEY: ${LCC_PROJECT_PRIVATE_KEY}")
 
 add_custom_target(project_initialize
   COMMAND license_generator::lccgen project initialize -t "${PROJECT_SOURCE_DIR}/src/templates" -n "${LCC_PROJECT_NAME}" -p "${LCC_PROJECTS_BASE_DIR}"
@@ -199,3 +221,4 @@ write_basic_package_version_file(${CMAKE_BINARY_DIR}/licensecc-config-version.cm
 install(FILES ${CMAKE_BINARY_DIR}/licensecc-config-version.cmake DESTINATION ${pkg_config_dest})
 
 
+# add_dependencies(licensecc_static project_initialize)

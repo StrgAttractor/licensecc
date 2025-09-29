@@ -93,12 +93,18 @@ LCC_EVENT_TYPE acquire_license(const CallerInformations* callerInformation, cons
 			if (callerInformation != nullptr) {
 				full_lic_info_it->m_magic = callerInformation->magic;
 			}
+			std::cout << "Verifying license for product: " << full_lic_info_it->m_project << std::endl;
 			const FUNCTION_RETURN signatureValid = verifier.verify_signature(*full_lic_info_it);
+			std::cout << "Signature verification result: " << signatureValid << std::endl;
 			LicenseInfo licInfo = verifier.toLicenseInfo(*full_lic_info_it);
+			std::cout << "License info done " << std::endl;
 			if (signatureValid == FUNC_RET_OK) {
+				std::cout << "Signature verified successfully." << std::endl;
 				if (verifier.verify_limits(*full_lic_info_it) == FUNC_RET_OK) {
+					std::cout << "License limits verified successfully." << std::endl;
 					licenses_ok.push_back(licInfo);
 				} else {
+					std::cout << "License limits verification failed." << std::endl;
 					licenses_with_errors.push_back(licInfo);
 				}
 			} else {

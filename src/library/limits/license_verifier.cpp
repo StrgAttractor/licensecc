@@ -37,12 +37,16 @@ FUNCTION_RETURN LicenseVerifier::verify_signature(const FullLicenseInfo& licInfo
 FUNCTION_RETURN LicenseVerifier::verify_limits(const FullLicenseInfo& lic_info) {
 	bool is_valid = LCC_VERIFY_MAGIC;
 	if (!is_valid) {
+		std::cout << "License magic number verification failed." << std::endl;
+		std::cout << "magic=" << lic_info.m_magic  << std::endl;
+
 		m_event_registry.addEvent(LICENSE_CORRUPTED, lic_info.source.c_str());
 	}
 	const time_t now = time(nullptr);
 	auto expiry = lic_info.m_limits.find(PARAM_EXPIRY_DATE);
 	if (is_valid && expiry != lic_info.m_limits.end()) {
 		if (seconds_from_epoch(expiry->second) < now) {
+			std::cout << "License expired on: " << expiry->second << std::endl;
 			m_event_registry.addEvent(PRODUCT_EXPIRED, lic_info.source.c_str(), ("Expired " + expiry->second).c_str());
 			is_valid = false;
 		}
@@ -50,6 +54,7 @@ FUNCTION_RETURN LicenseVerifier::verify_limits(const FullLicenseInfo& lic_info) 
 	const auto start_date = lic_info.m_limits.find(PARAM_BEGIN_DATE);
 	if (is_valid && start_date != lic_info.m_limits.end()) {
 		if (seconds_from_epoch(start_date->second) > now) {
+			std::cout << "License not valid yet, valid from: " << start_date->second << std::endl;
 			m_event_registry.addEvent(PRODUCT_EXPIRED, lic_info.source.c_str(),
 									  ("Valid from " + start_date->second).c_str());
 			is_valid = false;
@@ -61,6 +66,7 @@ FUNCTION_RETURN LicenseVerifier::verify_limits(const FullLicenseInfo& lic_info) 
 		m_event_registry.addEvent(event, lic_info.source);
 		is_valid = is_valid && (event == LICENSE_OK);
 	}
+	std::cout << "License limits verification result: " << (is_valid ? "OK" : "FAILED") << std::endl;
 	return is_valid ? FUNC_RET_OK : FUNC_RET_ERROR;
 }
 
